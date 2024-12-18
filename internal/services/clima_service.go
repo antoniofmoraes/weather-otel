@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/antoniofmoraes/weather/internal/utils"
+	"github.com/antoniofmoraes/weather-otel/internal/utils"
 )
 
 type WeatherAPIResponse struct {

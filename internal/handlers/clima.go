@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/antoniofmoraes/weather/internal/services"
+	"github.com/antoniofmoraes/weather-otel/internal/services"
 	"github.com/gorilla/mux"
 )
 

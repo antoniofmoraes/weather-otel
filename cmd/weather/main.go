@@ -5,17 +5,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/antoniofmoraes/weather/internal/handlers"
+	"github.com/antoniofmoraes/weather-otel/internal/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("could not load env variables")
-		return
-	}
+	godotenv.Load(".env")
 
 	r := mux.NewRouter()
 	r.HandleFunc("/clima/{cep}", handlers.ClimaHandler).Methods("GET")
