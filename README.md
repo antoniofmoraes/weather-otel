@@ -1,16 +1,24 @@
 # Labs Go Expert FullCycle
-# Weather API - Deploy Cloud Run
+## Weather API - Integração open telemetry e zapkin
 
-## Configuração
+### Configuração
 
 Copiar o arquivo `.env.exemplo` com o nome `.env`
 
-## Rodando localmente
+### Rodando localmente
 
-- Faça o build da imagem `docker build . -t weather_app`
-- Rode a imagem `docker run -p 8080 weather_app`
+- Rode o docker-compose: `docker compose up --build`
 
-## Google Cloud Run
+### Zapkin
 
-O projeto foi publicado usando Google Cloud Run.
-https://weather-app-361381993255.us-central1.run.app/clima/{CEP}
+O zapkin estará rodando em http://localhost:9411
+
+### Exemplo de requisição
+
+```bash
+curl --location 'http://localhost:8080/weather' \
+      --header 'Content-Type: application/json' \
+      --data '{
+          "cep": "81900550"
+      }'
+```
