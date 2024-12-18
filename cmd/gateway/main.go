@@ -13,12 +13,9 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/antoniofmoraes/weather-otel/internal/services"
 	"github.com/joho/godotenv"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
 type ZipcodeRequest struct {
@@ -32,7 +29,7 @@ type ErrorResponse struct {
 func main() {
 	loadEnv()
 
-	tracerProvider := initTracer()
+	tracerProvider := services.InitTracer(os.Getenv("ZIPKKIN_URL"), "weather-gateway")
 	defer func() {
 		if err := tracerProvider.Shutdown(context.Background()); err != nil {
 			log.Fatalf("failed to shutdown TracerProvider: %v", err)
@@ -56,23 +53,6 @@ func loadEnv() {
 	dir := filepath.Dir(filename)
 
 	godotenv.Load(filepath.Join(dir, ".env"))
-}
-
-func initTracer() *trace.TracerProvider {
-	exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
-	if err != nil {
-		log.Fatalf("failed to initialize exporter: %v", err)
-	}
-
-	provider := trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("GatewayService"),
-		)),
-	)
-	otel.SetTracerProvider(provider)
-	return provider
 }
 
 func validateZipcode(cep string) bool {

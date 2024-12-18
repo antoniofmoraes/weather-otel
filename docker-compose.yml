@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - app-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "55681:55681" # OTLP HTTP receiver
+    networks:
+      - app-network
+
+  weather-service:
+    build:
+      context: .
+      dockerfile: ./weather.Dockerfile
+    container_name: weather-service
+    command: ["/cmd/weather/main"]
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - WEATHER_API_KEY=${WEATHER_API_KEY}  # Exemplo de chave de API que será configurada via .env
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+    networks:
+      - app-network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./gateway.Dockerfile
+    container_name: gateway-service
+    command: ["/cmd/gateway/main"]
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - WEATHER_API_URL=http://weather-service:8081
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - weather-service
+      - zipkin
+    networks:
+      - app-network
+
+networks:
+  app-network:
